@@ -1,8 +1,8 @@
 'use client'
 
 import { createContext, useContext } from 'react'
-import type { AppDefinition } from '../types'
-import type { OSTheme } from '../themes/types'
+import type { AppDefinition } from '@/types'
+import type { OSTheme } from '@/themes/types'
 
 export interface OSContextValue {
   apps: AppDefinition[]

@@ -1,12 +1,16 @@
 'use client'
 
 import { useMemo } from 'react'
-import type { AppDefinition, DeepPartial } from '../../types'
-import type { OSTheme } from '../../themes/types'
-import { macosTheme } from '../../themes/macos'
-import { mergeTheme } from '../../utils/mergeTheme'
-import { themeToVars } from '../../utils/themeVars'
-import { OSProvider } from '../../context/OSProvider'
+import type { AppDefinition, DeepPartial } from '@/types'
+import type { OSTheme } from '@/themes/types'
+import { macosTheme } from '@/themes/macos'
+import { mergeTheme } from '@/utils/mergeTheme'
+import { themeToVars } from '@/utils/themeVars'
+import { OSProvider } from '@/context/OSProvider'
+import { WindowManager } from '@/components/WindowManager'
+import { Desktop } from '@/components/Desktop'
+import { Dock } from '@/components/Dock'
+import '@/styles.css'
 
 const builtInThemes: Record<string, OSTheme> = {
   macos: macosTheme,
@@ -24,9 +28,7 @@ export interface OSShellProps {
   children: React.ReactNode
 }
 
-function resolveTheme(
-  theme: OSShellProps['theme']
-): OSTheme {
+function resolveTheme(theme: OSShellProps['theme']): OSTheme {
   if (!theme) return macosTheme
 
   // String name → built-in theme
@@ -87,6 +89,9 @@ export function OSShell({
         onWindowClose={onWindowClose}
         onWindowFocus={onWindowFocus}
       >
+        <Desktop />
+        <WindowManager />
+        {taskbarVariant === 'dock' && <Dock />}
         {children}
       </OSProvider>
     </div>

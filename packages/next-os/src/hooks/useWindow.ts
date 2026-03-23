@@ -1,17 +1,14 @@
 'use client'
 
 import { useCallback } from 'react'
-import { useOSStore } from '../store/windowStore'
-import { useOSContext } from '../context/OSContext'
+import { useOSStore } from '@/store/windowStore'
+import { useOSContext } from '@/context/OSContext'
 
 export function useWindow(appId?: string) {
   const { apps } = useOSContext()
   const store = useOSStore()
 
-  const openWindow = useCallback(
-    (id: string) => store.openWindow(id, apps),
-    [store, apps]
-  )
+  const openWindow = useCallback((id: string) => store.openWindow(id, apps), [store, apps])
 
   // Unscoped API
   if (!appId) {
@@ -23,9 +20,7 @@ export function useWindow(appId?: string) {
   }
 
   // Scoped API
-  const windowEntry = Object.values(store.windows).find(
-    (w) => w.appId === appId
-  )
+  const windowEntry = Object.values(store.windows).find((w) => w.appId === appId)
 
   return {
     open: () => openWindow(appId),

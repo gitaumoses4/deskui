@@ -69,7 +69,8 @@ export const macosTheme: OSTheme = {
   },
 
   tokens: {
-    'font-family': '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif',
+    'font-family':
+      '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif',
     'accent-color': '#007aff',
   },
 }

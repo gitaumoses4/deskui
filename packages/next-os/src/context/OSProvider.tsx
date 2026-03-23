@@ -1,19 +1,15 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { OSContext, type OSContextValue } from './OSContext'
-import { useOSStore } from '../store/windowStore'
+import { OSContext, type OSContextValue } from '@/context/OSContext'
+import { useOSStore } from '@/store/windowStore'
 
 interface OSProviderProps extends OSContextValue {
   initialWindows?: string[]
   children: React.ReactNode
 }
 
-export function OSProvider({
-  initialWindows,
-  children,
-  ...contextValue
-}: OSProviderProps) {
+export function OSProvider({ initialWindows, children, ...contextValue }: OSProviderProps) {
   const openWindow = useOSStore((s) => s.openWindow)
   const initialized = useRef(false)
 
@@ -26,7 +22,5 @@ export function OSProvider({
     }
   }, [initialWindows, contextValue.apps, openWindow])
 
-  return (
-    <OSContext.Provider value={contextValue}>{children}</OSContext.Provider>
-  )
+  return <OSContext.Provider value={contextValue}>{children}</OSContext.Provider>
 }

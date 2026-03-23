@@ -1,0 +1,14 @@
+@keyframes nos-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.nos-sq-btn:hover {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+.nos-sq-close:hover {
+  background: #e81123 !important;
+  color: white !important;
+}

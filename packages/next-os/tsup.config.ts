@@ -6,5 +6,6 @@ export default defineConfig({
   dts: true,
   sourcemap: true,
   clean: true,
-  external: ['react', 'react-dom', 'next'],
+  external: ['react', 'react-dom', 'next', 'framer-motion', 'zustand', 'uuid'],
+  injectStyle: true,
 })

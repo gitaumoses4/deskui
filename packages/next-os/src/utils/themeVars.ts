@@ -1,4 +1,4 @@
-import type { OSTheme } from '../themes/types'
+import type { OSTheme } from '@/themes/types'
 
 export function themeToVars(theme: OSTheme): Record<string, string> {
   const vars: Record<string, string> = {}
