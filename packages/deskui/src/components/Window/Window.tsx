@@ -15,6 +15,7 @@ export function Window({ windowId }: WindowProps) {
   const { theme, apps } = useOSContext()
   const win = useOSStore((s) => s.windows[windowId])
   const focusWindow = useOSStore((s) => s.focusWindow)
+  const isDragging = useOSStore((s) => s.draggingWindowId === windowId)
 
   if (!win) return null
 
@@ -35,19 +36,39 @@ export function Window({ windowId }: WindowProps) {
         ...theme.animation.windowClose,
       }}
       initial="initial"
-      animate="animate"
+      animate={{
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        left: isMaximized ? 0 : win.position.x,
+        top: isMaximized ? 0 : win.position.y,
+        width: isMaximized ? window.innerWidth : win.size.w,
+        height: isMaximized ? window.innerHeight - dockHeight : win.size.h,
+        borderRadius: isMaximized ? 0 : parseInt(windowChrome.borderRadius) || 12,
+      }}
       exit="exit"
+      transition={
+        isDragging
+          ? {
+              left: { duration: 0 },
+              top: { duration: 0 },
+              width: { duration: 0 },
+              height: { duration: 0 },
+            }
+          : {
+              left: { type: 'tween', duration: 0.2, ease: [0.2, 0.8, 0.2, 1] },
+              top: { type: 'tween', duration: 0.2, ease: [0.2, 0.8, 0.2, 1] },
+              width: { type: 'tween', duration: 0.2, ease: [0.2, 0.8, 0.2, 1] },
+              height: { type: 'tween', duration: 0.2, ease: [0.2, 0.8, 0.2, 1] },
+              borderRadius: { type: 'tween', duration: 0.2 },
+            }
+      }
       onPointerDown={() => focusWindow(windowId)}
       style={{
         position: 'absolute',
-        left: isMaximized ? 0 : win.position.x,
-        top: isMaximized ? 0 : win.position.y,
-        width: isMaximized ? '100%' : win.size.w,
-        height: isMaximized ? `calc(100% - ${dockHeight}px)` : win.size.h,
         zIndex: win.zIndex,
         display: win.status === 'minimized' ? 'none' : 'flex',
         flexDirection: 'column',
-        borderRadius: isMaximized ? 0 : windowChrome.borderRadius,
         overflow: 'hidden',
         boxShadow: isFocused ? windowChrome.shadowFocused : windowChrome.shadow,
         border: windowChrome.border,
