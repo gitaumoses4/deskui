@@ -1,4 +1,0 @@
-{
-  "installCommand": "pnpm install --filter example...",
-  "buildCommand": "pnpm --filter next-os build && pnpm --filter example build"
-}
