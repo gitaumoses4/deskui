@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { v4 as uuid } from 'uuid'
-import type { AppDefinition } from '../types'
+import type { AppDefinition } from '@/types'
 
 export interface WindowState {
   id: string
@@ -35,7 +35,7 @@ export interface OSStore {
 
 function deriveZIndexes(
   windows: Record<string, WindowState>,
-  zStack: string[]
+  zStack: string[],
 ): Record<string, WindowState> {
   const updated = { ...windows }
   for (const [i, wid] of zStack.entries()) {
@@ -48,7 +48,7 @@ function deriveZIndexes(
 
 function setFocused(
   windows: Record<string, WindowState>,
-  focusedId: string | null
+  focusedId: string | null,
 ): Record<string, WindowState> {
   const updated: Record<string, WindowState> = {}
   for (const [id, win] of Object.entries(windows)) {
@@ -69,9 +69,7 @@ export const useOSStore = create<OSStore>((set, get) => ({
 
     // If not instanceable, focus existing window instead
     if (!app.instanceable) {
-      const existing = Object.values(state.windows).find(
-        (w) => w.appId === appId
-      )
+      const existing = Object.values(state.windows).find((w) => w.appId === appId)
       if (existing) {
         get().focusWindow(existing.id)
         return existing.id
@@ -152,7 +150,7 @@ export const useOSStore = create<OSStore>((set, get) => ({
 
     // Focus the next top visible window
     const visibleStack = state.zStack.filter(
-      (id) => id !== windowId && newWindows[id]?.status !== 'minimized'
+      (id) => id !== windowId && newWindows[id]?.status !== 'minimized',
     )
     const topWindowId = visibleStack.length > 0 ? visibleStack[visibleStack.length - 1] : null
 
