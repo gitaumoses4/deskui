@@ -13,6 +13,8 @@ import { Desktop } from '@/components/Desktop'
 import { Dock } from '@/components/Dock'
 import { Taskbar } from '@/components/Taskbar'
 import { ModeToggle } from '@/components/OSShell/ModeToggle'
+import { CommandPalette } from '@/components/CommandPalette'
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import '@/styles.css'
 
 const STORAGE_KEY = 'deskui-mode'
@@ -82,16 +84,18 @@ export function OSShell({
     })
   }, [onModeChange])
 
-  // Keyboard shortcut: Ctrl/Cmd + Shift + D
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
+  const toggleCommandPalette = useCallback(() => setCommandPaletteOpen((v) => !v), [])
+
   const showDesktop = useOSStore((s) => s.showDesktop)
 
+  // Keyboard shortcuts: Ctrl/Cmd+Shift+D (mode toggle), Ctrl/Cmd+D (show desktop)
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'D') {
         e.preventDefault()
         toggleMode()
       }
-      // Cmd/Ctrl+D: show desktop (minimize/restore all)
       if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'd') {
         e.preventDefault()
         showDesktop()
@@ -100,6 +104,9 @@ export function OSShell({
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [toggleMode, showDesktop])
+
+  // Window management shortcuts: Ctrl/Cmd+W, M, Tab, K, etc.
+  useKeyboardShortcuts({ apps, onToggleCommandPalette: toggleCommandPalette })
 
   const theme = useMemo(() => resolveTheme(themeProp), [themeProp])
   const cssVars = useMemo(() => themeToVars(theme), [theme])
@@ -119,7 +126,7 @@ export function OSShell({
     return (
       <>
         {children}
-        <ModeToggle mode={mode} onToggle={toggleMode} />
+        <ModeToggle mode={mode} onToggle={toggleMode} themeTokens={theme.modeToggle} />
       </>
     )
   }
@@ -148,7 +155,8 @@ export function OSShell({
         <Desktop />
         <WindowManager />
         {taskbarVariant === 'dock' ? <Dock /> : <Taskbar />}
-        <ModeToggle mode={mode} onToggle={toggleMode} />
+        <ModeToggle mode={mode} onToggle={toggleMode} themeTokens={theme.modeToggle} />
+        <CommandPalette open={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
         {children}
       </OSProvider>
     </div>

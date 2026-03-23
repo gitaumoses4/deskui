@@ -6,6 +6,7 @@ export { WindowManager } from './components/WindowManager'
 export { Desktop } from './components/Desktop'
 export { Dock } from './components/Dock'
 export { Taskbar } from './components/Taskbar'
+export { CommandPalette } from './components/CommandPalette'
 
 // Hooks
 export { useWindow } from './hooks/useWindow'
