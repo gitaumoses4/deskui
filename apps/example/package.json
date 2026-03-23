@@ -10,11 +10,12 @@
   },
   "dependencies": {
     "next": "^14.0.0",
+    "next-os": "workspace:*",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "next-os": "workspace:*"
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
+    "@types/node": "25.5.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "typescript": "^5.0.0"
