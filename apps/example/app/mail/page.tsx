@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardBody, Avatar, Chip, Button, Divider } from '@heroui/react'
+import { Avatar, Button, Divider } from '@heroui/react'
 import {
   HiOutlineInbox,
   HiOutlinePaperAirplane,

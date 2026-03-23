@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardBody, Chip, Avatar } from '@heroui/react'
+import { Card, CardBody, Avatar } from '@heroui/react'
 
 const today = new Date()
 const currentMonth = today.getMonth()
