@@ -26,9 +26,7 @@ export type { AppDefinition, DeepPartial } from './types'
 export type { OSTheme } from './themes/types'
 
 // Themes
-export { macosTheme } from './themes/macos'
-export { windows11Theme } from './themes/windows11'
-export { ubuntuTheme } from './themes/ubuntu'
+export { defaultTheme } from './themes/default'
 
 // Utilities
 export { mergeTheme } from './utils/mergeTheme'

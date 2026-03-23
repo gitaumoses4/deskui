@@ -3,9 +3,7 @@
 import { useMemo, useState, useEffect, useCallback } from 'react'
 import type { AppDefinition, DeepPartial } from '@/types'
 import type { OSTheme } from '@/themes/types'
-import { macosTheme } from '@/themes/macos'
-import { windows11Theme } from '@/themes/windows11'
-import { ubuntuTheme } from '@/themes/ubuntu'
+import { defaultTheme } from '@/themes/default'
 import { mergeTheme } from '@/utils/mergeTheme'
 import { themeToVars } from '@/utils/themeVars'
 import { OSProvider } from '@/context/OSProvider'
@@ -16,17 +14,11 @@ import { Taskbar } from '@/components/Taskbar'
 import { ModeToggle } from '@/components/OSShell/ModeToggle'
 import '@/styles.css'
 
-const builtInThemes: Record<string, OSTheme> = {
-  macos: macosTheme,
-  windows11: windows11Theme,
-  ubuntu: ubuntuTheme,
-}
-
 const STORAGE_KEY = 'deskui-mode'
 
 export interface OSShellProps {
   apps: AppDefinition[]
-  theme?: 'macos' | 'windows11' | 'ubuntu' | OSTheme | DeepPartial<OSTheme>
+  theme?: OSTheme | DeepPartial<OSTheme>
   wallpaper?: string
   taskbarVariant?: 'dock' | 'taskbar'
   initialWindows?: string[]
@@ -39,26 +31,23 @@ export interface OSShellProps {
 }
 
 function resolveTheme(theme: OSShellProps['theme']): OSTheme {
-  if (!theme) return macosTheme
+  if (!theme) return defaultTheme
 
-  if (typeof theme === 'string') {
-    return builtInThemes[theme] ?? macosTheme
+  // Full theme object
+  if (
+    'name' in theme &&
+    'windowChrome' in theme &&
+    'dock' in theme &&
+    'taskbar' in theme &&
+    'desktop' in theme &&
+    'animation' in theme &&
+    'tokens' in theme
+  ) {
+    return theme as OSTheme
   }
 
-  if ('name' in theme && theme.name && typeof theme.name === 'string') {
-    if (
-      'windowChrome' in theme &&
-      'dock' in theme &&
-      'taskbar' in theme &&
-      'desktop' in theme &&
-      'animation' in theme &&
-      'tokens' in theme
-    ) {
-      return theme as OSTheme
-    }
-  }
-
-  return mergeTheme(macosTheme, theme as DeepPartial<OSTheme>)
+  // Partial override — merge with default
+  return mergeTheme(defaultTheme, theme as DeepPartial<OSTheme>)
 }
 
 export function OSShell({
