@@ -18,6 +18,8 @@ export interface WindowState {
   isPip: boolean
   prePipPosition: { x: number; y: number } | null
   prePipSize: { w: number; h: number } | null
+  tabGroupId: string | null
+  isActiveTab: boolean
 }
 
 const BASE_Z = 100
@@ -77,6 +79,9 @@ export interface OSStore {
   blurAll: () => void
   showDesktop: () => void
   togglePip: (windowId: string, topOffset?: number) => void
+  groupWindows: (windowId1: string, windowId2: string) => void
+  ungroupWindow: (windowId: string) => void
+  switchTab: (windowId: string) => void
 }
 
 function deriveZIndexes(
@@ -245,6 +250,8 @@ export const useOSStore = create<OSStore>((set, get) => ({
       isPip: false,
       prePipPosition: null,
       prePipSize: null,
+      tabGroupId: null,
+      isActiveTab: true,
     }
 
     const newZStack = [...state.zStack, windowId]
@@ -464,5 +471,84 @@ export const useOSStore = create<OSStore>((set, get) => ({
           : win
     }
     set({ windows, showDesktopSnapshot: visibleIds })
+  },
+
+  groupWindows: (windowId1, windowId2) => {
+    const state = get()
+    const win1 = state.windows[windowId1]
+    const win2 = state.windows[windowId2]
+    if (!win1 || !win2 || windowId1 === windowId2) return
+
+    // Use existing group or create new one
+    const groupId = win1.tabGroupId ?? win2.tabGroupId ?? `tabgroup-${uuid()}`
+
+    // win2 becomes inactive tab, adopts win1's position/size
+    set({
+      windows: {
+        ...state.windows,
+        [windowId1]: { ...win1, tabGroupId: groupId, isActiveTab: true },
+        [windowId2]: {
+          ...win2,
+          tabGroupId: groupId,
+          isActiveTab: false,
+          position: { ...win1.position },
+          size: { ...win1.size },
+        },
+      },
+    })
+  },
+
+  ungroupWindow: (windowId) => {
+    const state = get()
+    const win = state.windows[windowId]
+    if (!win || !win.tabGroupId) return
+
+    const groupId = win.tabGroupId
+    const groupMembers = Object.values(state.windows).filter(
+      (w) => w.tabGroupId === groupId && w.id !== windowId,
+    )
+
+    const newWindows = { ...state.windows }
+
+    // Remove from group and offset position
+    newWindows[windowId] = {
+      ...win,
+      tabGroupId: null,
+      isActiveTab: true,
+      position: { x: win.position.x + 30, y: win.position.y + 30 },
+    }
+
+    // If only one left in group, dissolve the group
+    if (groupMembers.length === 1) {
+      const remaining = groupMembers[0]
+      newWindows[remaining.id] = {
+        ...remaining,
+        tabGroupId: null,
+        isActiveTab: true,
+      }
+    } else if (groupMembers.length > 0 && !win.isActiveTab) {
+      // Nothing else to do — other tabs keep their group
+    } else if (groupMembers.length > 0 && win.isActiveTab) {
+      // Activate the next tab
+      newWindows[groupMembers[0].id] = { ...groupMembers[0], isActiveTab: true }
+    }
+
+    set({ windows: newWindows })
+  },
+
+  switchTab: (windowId) => {
+    const state = get()
+    const win = state.windows[windowId]
+    if (!win || !win.tabGroupId) return
+
+    const newWindows: Record<string, WindowState> = {}
+    for (const [id, w] of Object.entries(state.windows)) {
+      if (w.tabGroupId === win.tabGroupId) {
+        newWindows[id] = { ...w, isActiveTab: id === windowId }
+      } else {
+        newWindows[id] = w
+      }
+    }
+    set({ windows: newWindows })
   },
 }))
