@@ -3,6 +3,7 @@
 import { useCallback } from 'react'
 import { useWindowResize } from '@/hooks/useWindowResize'
 import { useOSStore } from '@/store/windowStore'
+import { useOSContext } from '@/context/OSContext'
 
 type Handle = 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw'
 
@@ -46,14 +47,19 @@ function ResizeHandle({ windowId, handle }: { windowId: string; handle: Handle }
   const moveWindow = useOSStore((s) => s.moveWindow)
   const resizeWindow = useOSStore((s) => s.resizeWindow)
   const windows = useOSStore((s) => s.windows)
+  const { theme, taskbarVariant } = useOSContext()
 
   // Double-click to expand to screen boundary in that direction
   const onDoubleClick = useCallback(() => {
     const win = windows[windowId]
     if (!win) return
 
+    const barHeight = taskbarVariant === 'taskbar' ? theme.taskbar.height : theme.menuBar.height
+    const barPosition = taskbarVariant === 'taskbar' ? theme.taskbar.position : 'top'
+    const topBound = barPosition === 'top' ? barHeight : 0
+    const bottomBound =
+      barPosition === 'bottom' ? window.innerHeight - barHeight : window.innerHeight
     const vw = window.innerWidth
-    const vh = window.innerHeight
 
     let { x, y } = win.position
     let { w, h } = win.size
@@ -63,15 +69,15 @@ function ResizeHandle({ windowId, handle }: { windowId: string; handle: Handle }
       w = x + w
       x = 0
     }
-    if (handle === 's' || handle === 'se' || handle === 'sw') h = vh - y
+    if (handle === 's' || handle === 'se' || handle === 'sw') h = bottomBound - y
     if (handle === 'n' || handle === 'ne' || handle === 'nw') {
-      h = y + h
-      y = 0
+      h = y + h - topBound
+      y = topBound
     }
 
     resizeWindow(windowId, { w, h })
     moveWindow(windowId, { x, y })
-  }, [windowId, handle, windows, resizeWindow, moveWindow])
+  }, [windowId, handle, windows, resizeWindow, moveWindow, theme, taskbarVariant])
 
   return (
     <div
