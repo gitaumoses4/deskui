@@ -18,7 +18,6 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { SnapPreview } from '@/components/SnapPreview'
 import { WindowSwitcher } from '@/components/WindowSwitcher'
 import { useBridgeListener } from '@/hooks/useBridgeListener'
-import { useReservedSpace } from '@/hooks/useReservedSpace'
 import { usePersistedLayout } from '@/hooks/usePersistedLayout'
 import '@/styles.css'
 
@@ -116,7 +115,10 @@ export function OSShell({
   const cssVars = useMemo(() => themeToVars(theme), [theme])
 
   // Window management shortcuts: Ctrl/Cmd+W, M, Tab, K, etc.
-  const reservedSpace = useReservedSpace()
+  const reservedSpace =
+    taskbarVariant === 'taskbar'
+      ? { height: theme.taskbar.height, position: theme.taskbar.position }
+      : undefined
   useKeyboardShortcuts({
     apps,
     reservedSpace,
