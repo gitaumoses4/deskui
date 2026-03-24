@@ -3,13 +3,14 @@
 import { useState } from 'react'
 import { useOSStore } from '@/store/windowStore'
 import { useOSContext } from '@/context/OSContext'
+import { useReservedSpace } from '@/hooks/useReservedSpace'
 
 interface WindowControlsProps {
   windowId: string
 }
 
 export function WindowControls({ windowId }: WindowControlsProps) {
-  const { theme, taskbarVariant } = useOSContext()
+  const { theme } = useOSContext()
   const { controlStyle, controlsPosition } = theme.windowChrome
   const closeWindow = useOSStore((s) => s.closeWindow)
   const minimizeWindow = useOSStore((s) => s.minimizeWindow)
@@ -17,14 +18,13 @@ export function WindowControls({ windowId }: WindowControlsProps) {
   const restoreWindow = useOSStore((s) => s.restoreWindow)
   const win = useOSStore((s) => s.windows[windowId])
   const isMaximized = win?.status === 'maximized'
-  const barHeight = taskbarVariant === 'dock' ? theme.dock.height : theme.taskbar.height
-  const barPosition = taskbarVariant === 'dock' ? theme.dock.position : theme.taskbar.position
+  const reservedSpace = useReservedSpace()
 
   const toggleMaximize = () => {
     if (isMaximized) {
       restoreWindow(windowId)
     } else {
-      maximizeWindow(windowId, barHeight, barPosition)
+      maximizeWindow(windowId, reservedSpace)
     }
   }
 

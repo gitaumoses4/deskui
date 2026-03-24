@@ -18,6 +18,7 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { SnapPreview } from '@/components/SnapPreview'
 import { WindowSwitcher } from '@/components/WindowSwitcher'
 import { useBridgeListener } from '@/hooks/useBridgeListener'
+import { usePersistedLayout } from '@/hooks/usePersistedLayout'
 import '@/styles.css'
 
 const STORAGE_KEY = 'deskui-mode'
@@ -29,6 +30,7 @@ export interface OSShellProps {
   taskbarVariant?: 'dock' | 'taskbar'
   initialWindows?: string[]
   defaultMode?: 'desktop' | 'web'
+  persistLayout?: boolean
   onWindowOpen?: (appId: string) => void
   onWindowClose?: (windowId: string) => void
   onWindowFocus?: (windowId: string) => void
@@ -63,6 +65,7 @@ export function OSShell({
   taskbarVariant = 'dock',
   initialWindows,
   defaultMode = 'desktop',
+  persistLayout = false,
   onWindowOpen,
   onWindowClose,
   onWindowFocus,
@@ -112,17 +115,19 @@ export function OSShell({
   const cssVars = useMemo(() => themeToVars(theme), [theme])
 
   // Window management shortcuts: Ctrl/Cmd+W, M, Tab, K, etc.
-  const barHeight = taskbarVariant === 'dock' ? theme.dock.height : theme.taskbar.height
-  const barPosition = taskbarVariant === 'dock' ? theme.dock.position : theme.taskbar.position
+  const reservedSpace =
+    taskbarVariant === 'taskbar'
+      ? { height: theme.taskbar.height, position: theme.taskbar.position }
+      : undefined
   useKeyboardShortcuts({
     apps,
-    barHeight,
-    barPosition,
+    reservedSpace,
     onToggleCommandPalette: toggleCommandPalette,
   })
 
   // Listen for postMessage from iframe windows
   useBridgeListener()
+  usePersistedLayout(persistLayout)
 
   // Still detecting context — render nothing to prevent flash
   if (isIframe === null) {

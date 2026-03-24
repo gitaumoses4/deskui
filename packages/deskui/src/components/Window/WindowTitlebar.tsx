@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react'
 import { useOSContext } from '@/context/OSContext'
 import { useOSStore } from '@/store/windowStore'
 import { useWindowDrag } from '@/hooks/useWindowDrag'
+import { useReservedSpace } from '@/hooks/useReservedSpace'
 import { WindowControls } from './WindowControls'
 import { ContextMenu } from '@/components/ContextMenu'
 import type { ContextMenuItem } from '@/components/ContextMenu'
@@ -28,16 +29,15 @@ export function WindowTitlebar({ windowId }: WindowTitlebarProps) {
 
   const isFocused = win?.isFocused ?? false
   const isMaximized = win?.status === 'maximized'
-  const barHeight = taskbarVariant === 'dock' ? theme.dock.height : theme.taskbar.height
-  const barPosition = taskbarVariant === 'dock' ? theme.dock.position : theme.taskbar.position
+  const reservedSpace = useReservedSpace()
 
   const onDoubleClick = useCallback(() => {
     if (isMaximized) {
       restoreWindow(windowId)
     } else {
-      maximizeWindow(windowId, barHeight, barPosition)
+      maximizeWindow(windowId, reservedSpace)
     }
-  }, [isMaximized, windowId, maximizeWindow, restoreWindow, barHeight, barPosition])
+  }, [isMaximized, windowId, maximizeWindow, restoreWindow, reservedSpace])
 
   const onContextMenu = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
@@ -49,7 +49,7 @@ export function WindowTitlebar({ windowId }: WindowTitlebarProps) {
       label: isMaximized ? 'Restore' : 'Maximize',
       shortcut: '⌘⇧F',
       action: () =>
-        isMaximized ? restoreWindow(windowId) : maximizeWindow(windowId, barHeight, barPosition),
+        isMaximized ? restoreWindow(windowId) : maximizeWindow(windowId, reservedSpace),
     },
     {
       label: 'Minimize',
