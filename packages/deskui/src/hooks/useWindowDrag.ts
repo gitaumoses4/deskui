@@ -9,12 +9,12 @@ const TITLEBAR_MIN_VISIBLE = 40
 const SNAP_EDGE_THRESHOLD = 8
 const SNAP_CORNER_SIZE = 100
 
-function detectSnapZone(clientX: number, clientY: number): SnapZone {
+function detectSnapZone(clientX: number, clientY: number, topOffset: number): SnapZone {
   const vw = window.innerWidth
   const vh = window.innerHeight
   const nearLeft = clientX <= SNAP_EDGE_THRESHOLD
   const nearRight = clientX >= vw - SNAP_EDGE_THRESHOLD
-  const nearTop = clientY <= SNAP_EDGE_THRESHOLD
+  const nearTop = clientY <= topOffset + SNAP_EDGE_THRESHOLD
   const nearBottom = clientY >= vh - SNAP_EDGE_THRESHOLD
 
   if (nearTop && nearLeft) return 'top-left'
@@ -100,8 +100,14 @@ export function useWindowDrag(windowId: string) {
         Math.min(e.clientY - offsetRef.current.y, window.innerHeight - TITLEBAR_MIN_VISIBLE),
       )
 
-      // Detect snap zone
-      const zone = detectSnapZone(e.clientX, e.clientY)
+      // Detect snap zone (account for menu bar / taskbar at top)
+      const topOffset =
+        taskbarVariant === 'taskbar' && theme.taskbar.position === 'top'
+          ? theme.taskbar.height
+          : taskbarVariant === 'dock'
+            ? theme.menuBar.height
+            : 0
+      const zone = detectSnapZone(e.clientX, e.clientY, topOffset)
       if (zone !== currentSnapZone.current) {
         currentSnapZone.current = zone
         setSnapPreview(zone)
