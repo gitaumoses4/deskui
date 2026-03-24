@@ -72,7 +72,8 @@ export function WindowTitlebar({ windowId, app }: WindowTitlebarProps) {
     },
     {
       label: win?.isPip ? 'Exit Picture in Picture' : 'Picture in Picture',
-      action: () => togglePip(windowId),
+      action: () =>
+        togglePip(windowId, reservedSpace?.position === 'top' ? reservedSpace.height : 0),
     },
     { separator: true, label: '' },
     { label: 'Close', shortcut: '⌘W', danger: true, action: onClose },

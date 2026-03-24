@@ -70,7 +70,7 @@ export interface OSStore {
   resizeWindow: (windowId: string, size: { w: number; h: number }) => void
   blurAll: () => void
   showDesktop: () => void
-  togglePip: (windowId: string) => void
+  togglePip: (windowId: string, topOffset?: number) => void
 }
 
 function deriveZIndexes(
@@ -358,7 +358,7 @@ export const useOSStore = create<OSStore>((set, get) => ({
     })
   },
 
-  togglePip: (windowId) => {
+  togglePip: (windowId, topOffset = 0) => {
     const state = get()
     const win = state.windows[windowId]
     if (!win) return
@@ -389,7 +389,7 @@ export const useOSStore = create<OSStore>((set, get) => ({
             isPip: true,
             prePipPosition: { ...win.position },
             prePipSize: { ...win.size },
-            position: { x: window.innerWidth - PIP_SIZE.w - 16, y: 16 },
+            position: { x: window.innerWidth - PIP_SIZE.w - 16, y: topOffset + 16 },
             size: PIP_SIZE,
             zIndex: PIP_Z,
             isFocused: false,
