@@ -1,29 +1,32 @@
 'use client'
 
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useOSStore } from '@/store/windowStore'
 import { useOSContext } from '@/context/OSContext'
 
 export function SnapPreview() {
   const snapPreview = useOSStore((s) => s.snapPreview)
-  const { theme } = useOSContext()
-  const dockHeight = theme.dock.height
+  const { theme, taskbarVariant } = useOSContext()
 
   if (!snapPreview) return null
 
+  const barHeight = taskbarVariant === 'dock' ? theme.dock.height : theme.taskbar.height
+  const barPosition = taskbarVariant === 'dock' ? theme.dock.position : theme.taskbar.position
+  const topOffset = barPosition === 'top' ? barHeight : 0
+
   const vw = window.innerWidth
-  const vh = window.innerHeight - dockHeight
+  const vh = window.innerHeight - barHeight
   const halfW = Math.round(vw / 2)
   const halfH = Math.round(vh / 2)
 
   const zoneStyles: Record<string, React.CSSProperties> = {
-    left: { left: 0, top: 0, width: halfW, height: vh },
-    right: { left: halfW, top: 0, width: halfW, height: vh },
-    top: { left: 0, top: 0, width: vw, height: vh },
-    'top-left': { left: 0, top: 0, width: halfW, height: halfH },
-    'top-right': { left: halfW, top: 0, width: halfW, height: halfH },
-    'bottom-left': { left: 0, top: halfH, width: halfW, height: halfH },
-    'bottom-right': { left: halfW, top: halfH, width: halfW, height: halfH },
+    left: { left: 0, top: topOffset, width: halfW, height: vh },
+    right: { left: halfW, top: topOffset, width: halfW, height: vh },
+    top: { left: 0, top: topOffset, width: vw, height: vh },
+    'top-left': { left: 0, top: topOffset, width: halfW, height: halfH },
+    'top-right': { left: halfW, top: topOffset, width: halfW, height: halfH },
+    'bottom-left': { left: 0, top: topOffset + halfH, width: halfW, height: halfH },
+    'bottom-right': { left: halfW, top: topOffset + halfH, width: halfW, height: halfH },
   }
 
   const style = zoneStyles[snapPreview]

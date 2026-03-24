@@ -36,13 +36,18 @@ export interface OSStore {
   snapPreview: SnapZone
   setDragging: (windowId: string | null) => void
   setSnapPreview: (zone: SnapZone) => void
-  snapWindow: (windowId: string, zone: Exclude<SnapZone, null>, dockHeight: number) => void
+  snapWindow: (
+    windowId: string,
+    zone: Exclude<SnapZone, null>,
+    barHeight: number,
+    barPosition?: 'top' | 'bottom',
+  ) => void
 
   openWindow: (appId: string, apps: AppDefinition[]) => string | null
   closeWindow: (windowId: string) => void
   focusWindow: (windowId: string) => void
   minimizeWindow: (windowId: string) => void
-  maximizeWindow: (windowId: string) => void
+  maximizeWindow: (windowId: string, barHeight?: number, barPosition?: 'top' | 'bottom') => void
   restoreWindow: (windowId: string) => void
   moveWindow: (windowId: string, position: { x: number; y: number }) => void
   resizeWindow: (windowId: string, size: { w: number; h: number }) => void
@@ -84,24 +89,25 @@ export const useOSStore = create<OSStore>((set, get) => ({
   snapPreview: null,
   setDragging: (windowId) => set({ draggingWindowId: windowId }),
   setSnapPreview: (zone) => set({ snapPreview: zone }),
-  snapWindow: (windowId, zone, dockHeight) => {
+  snapWindow: (windowId, zone, barHeight, barPosition = 'bottom') => {
     const state = get()
     const win = state.windows[windowId]
     if (!win) return
 
     const vw = window.innerWidth
-    const vh = window.innerHeight - dockHeight
+    const vh = window.innerHeight - barHeight
+    const topOffset = barPosition === 'top' ? barHeight : 0
     const halfW = Math.round(vw / 2)
     const halfH = Math.round(vh / 2)
 
     const zoneMap: Record<string, { x: number; y: number; w: number; h: number }> = {
-      left: { x: 0, y: 0, w: halfW, h: vh },
-      right: { x: halfW, y: 0, w: halfW, h: vh },
-      top: { x: 0, y: 0, w: vw, h: vh },
-      'top-left': { x: 0, y: 0, w: halfW, h: halfH },
-      'top-right': { x: halfW, y: 0, w: halfW, h: halfH },
-      'bottom-left': { x: 0, y: halfH, w: halfW, h: halfH },
-      'bottom-right': { x: halfW, y: halfH, w: halfW, h: halfH },
+      left: { x: 0, y: topOffset, w: halfW, h: vh },
+      right: { x: halfW, y: topOffset, w: halfW, h: vh },
+      top: { x: 0, y: topOffset, w: vw, h: vh },
+      'top-left': { x: 0, y: topOffset, w: halfW, h: halfH },
+      'top-right': { x: halfW, y: topOffset, w: halfW, h: halfH },
+      'bottom-left': { x: 0, y: topOffset + halfH, w: halfW, h: halfH },
+      'bottom-right': { x: halfW, y: topOffset + halfH, w: halfW, h: halfH },
     }
 
     const rect = zoneMap[zone]
@@ -226,11 +232,12 @@ export const useOSStore = create<OSStore>((set, get) => ({
     set({ windows: setFocused(newWindows, topWindowId) })
   },
 
-  maximizeWindow: (windowId) => {
+  maximizeWindow: (windowId, barHeight = 0, barPosition = 'bottom') => {
     const state = get()
     const win = state.windows[windowId]
     if (!win || win.status === 'maximized') return
 
+    const vh = window.innerHeight - barHeight
     const newWindows = {
       ...state.windows,
       [windowId]: {
@@ -238,8 +245,8 @@ export const useOSStore = create<OSStore>((set, get) => ({
         preMaximizePosition: { ...win.position },
         preMaximizeSize: { ...win.size },
         status: 'maximized' as const,
-        position: { x: 0, y: 0 },
-        size: { w: window.innerWidth, h: window.innerHeight },
+        position: { x: 0, y: barPosition === 'top' ? barHeight : 0 },
+        size: { w: window.innerWidth, h: vh },
       },
     }
 

@@ -107,11 +107,18 @@ export function OSShell({
     return () => window.removeEventListener('keydown', handler)
   }, [toggleMode, showDesktop])
 
-  // Window management shortcuts: Ctrl/Cmd+W, M, Tab, K, etc.
-  useKeyboardShortcuts({ apps, onToggleCommandPalette: toggleCommandPalette })
-
   const theme = useMemo(() => resolveTheme(themeProp), [themeProp])
   const cssVars = useMemo(() => themeToVars(theme), [theme])
+
+  // Window management shortcuts: Ctrl/Cmd+W, M, Tab, K, etc.
+  const barHeight = taskbarVariant === 'dock' ? theme.dock.height : theme.taskbar.height
+  const barPosition = taskbarVariant === 'dock' ? theme.dock.position : theme.taskbar.position
+  useKeyboardShortcuts({
+    apps,
+    barHeight,
+    barPosition,
+    onToggleCommandPalette: toggleCommandPalette,
+  })
 
   // Still detecting context — render nothing to prevent flash
   if (isIframe === null) {
