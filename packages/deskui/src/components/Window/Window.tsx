@@ -7,6 +7,7 @@ import { useOSContext } from '@/context/OSContext'
 import { WindowTitlebar } from './WindowTitlebar'
 import { WindowContent } from './WindowContent'
 import { WindowResizeHandles } from './WindowResizeHandles'
+import { AppIcon } from '@/components/shared/AppIcon'
 
 interface WindowProps {
   windowId: string
@@ -15,6 +16,9 @@ interface WindowProps {
 export function Window({ windowId }: WindowProps) {
   const { theme, apps } = useOSContext()
   const win = useOSStore((s) => s.windows[windowId])
+  const allWindows = useOSStore((s) => s.windows)
+  const switchTab = useOSStore((s) => s.switchTab)
+  const ungroupWindow = useOSStore((s) => s.ungroupWindow)
   const focusWindow = useOSStore((s) => s.focusWindow)
   const isDragging = useOSStore((s) => s.draggingWindowId === windowId)
   const isShaking = useOSStore((s) => s.shakeWindowId === windowId)
@@ -32,6 +36,14 @@ export function Window({ windowId }: WindowProps) {
 
   const isMaximized = win.status === 'maximized'
   const isPip = win.isPip
+
+  // Tab grouping: hide inactive tabs
+  if (win.tabGroupId && !win.isActiveTab) return null
+
+  // Get sibling tabs for tab bar
+  const tabSiblings = win.tabGroupId
+    ? Object.values(allWindows).filter((w) => w.tabGroupId === win.tabGroupId)
+    : null
 
   return (
     <motion.div
@@ -99,6 +111,74 @@ export function Window({ windowId }: WindowProps) {
       }}
     >
       {!isPip && <WindowTitlebar windowId={windowId} app={app} />}
+      {/* Tab bar for grouped windows */}
+      {tabSiblings && tabSiblings.length > 1 && (
+        <div
+          style={{
+            display: 'flex',
+            background: windowChrome.titlebarBgUnfocused,
+            borderBottom: windowChrome.border,
+            overflow: 'hidden',
+            flexShrink: 0,
+          }}
+        >
+          {tabSiblings.map((tab) => {
+            const tabApp = apps.find((a) => a.id === tab.appId)
+            return (
+              <button
+                key={tab.id}
+                onClick={() => switchTab(tab.id)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  padding: '4px 12px',
+                  border: 'none',
+                  borderBottom: tab.isActiveTab
+                    ? `2px solid ${theme.tokens['accent-color'] ?? '#007aff'}`
+                    : '2px solid transparent',
+                  background: tab.isActiveTab ? windowChrome.titlebarBg : 'transparent',
+                  color: windowChrome.titlebarTextColor,
+                  fontSize: 11,
+                  cursor: 'pointer',
+                  opacity: tab.isActiveTab ? 1 : 0.6,
+                  maxWidth: 150,
+                  overflow: 'hidden',
+                }}
+              >
+                {tabApp && <AppIcon icon={tabApp.icon} size={12} />}
+                <span
+                  style={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {tab.title}
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    ungroupWindow(tab.id)
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'inherit',
+                    fontSize: 10,
+                    cursor: 'pointer',
+                    padding: 0,
+                    marginLeft: 2,
+                    opacity: 0.5,
+                  }}
+                >
+                  ×
+                </button>
+              </button>
+            )
+          })}
+        </div>
+      )}
       <WindowContent route={app.route} skeleton={app.skeleton} />
       {/* Transparent overlay to capture clicks when unfocused (iframe swallows pointer events) */}
       {!isFocused && (

@@ -38,6 +38,11 @@ export interface ControlsRenderProps {
   onRestore: () => void
 }
 
+export interface IconSource {
+  src: string
+  src2x?: string
+}
+
 export interface DockSeparator {
   type: 'separator'
 }

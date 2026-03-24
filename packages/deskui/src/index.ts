@@ -41,6 +41,7 @@ export type {
   ControlsRenderProps,
   DockSeparator,
   DockEntry,
+  IconSource,
 } from './types'
 export type { OSTheme } from './themes/types'
 
