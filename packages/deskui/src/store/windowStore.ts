@@ -18,12 +18,25 @@ export interface WindowState {
 
 const BASE_Z = 100
 
+export type SnapZone =
+  | 'left'
+  | 'right'
+  | 'top-left'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-right'
+  | 'top'
+  | null
+
 export interface OSStore {
   windows: Record<string, WindowState>
   zStack: string[]
   showDesktopSnapshot: string[] | null
   draggingWindowId: string | null
+  snapPreview: SnapZone
   setDragging: (windowId: string | null) => void
+  setSnapPreview: (zone: SnapZone) => void
+  snapWindow: (windowId: string, zone: Exclude<SnapZone, null>, dockHeight: number) => void
 
   openWindow: (appId: string, apps: AppDefinition[]) => string | null
   closeWindow: (windowId: string) => void
@@ -68,7 +81,47 @@ export const useOSStore = create<OSStore>((set, get) => ({
   zStack: [],
   showDesktopSnapshot: null,
   draggingWindowId: null,
+  snapPreview: null,
   setDragging: (windowId) => set({ draggingWindowId: windowId }),
+  setSnapPreview: (zone) => set({ snapPreview: zone }),
+  snapWindow: (windowId, zone, dockHeight) => {
+    const state = get()
+    const win = state.windows[windowId]
+    if (!win) return
+
+    const vw = window.innerWidth
+    const vh = window.innerHeight - dockHeight
+    const halfW = Math.round(vw / 2)
+    const halfH = Math.round(vh / 2)
+
+    const zoneMap: Record<string, { x: number; y: number; w: number; h: number }> = {
+      left: { x: 0, y: 0, w: halfW, h: vh },
+      right: { x: halfW, y: 0, w: halfW, h: vh },
+      top: { x: 0, y: 0, w: vw, h: vh },
+      'top-left': { x: 0, y: 0, w: halfW, h: halfH },
+      'top-right': { x: halfW, y: 0, w: halfW, h: halfH },
+      'bottom-left': { x: 0, y: halfH, w: halfW, h: halfH },
+      'bottom-right': { x: halfW, y: halfH, w: halfW, h: halfH },
+    }
+
+    const rect = zoneMap[zone]
+    if (!rect) return
+
+    set({
+      windows: {
+        ...state.windows,
+        [windowId]: {
+          ...win,
+          preMaximizePosition: win.preMaximizePosition ?? { ...win.position },
+          preMaximizeSize: win.preMaximizeSize ?? { ...win.size },
+          status: zone === 'top' ? ('maximized' as const) : ('open' as const),
+          position: { x: rect.x, y: rect.y },
+          size: { w: rect.w, h: rect.h },
+        },
+      },
+      snapPreview: null,
+    })
+  },
 
   openWindow: (appId, apps) => {
     const app = apps.find((a) => a.id === appId)

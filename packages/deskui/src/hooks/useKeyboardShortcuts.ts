@@ -52,19 +52,7 @@ export function useKeyboardShortcuts({ apps, onToggleCommandPalette }: KeyboardS
         return
       }
 
-      // Cmd/Ctrl+Tab: cycle through open windows
-      if (mod && e.key === 'Tab') {
-        e.preventDefault()
-        const visibleIds = store.zStack.filter((id) => store.windows[id]?.status !== 'minimized')
-        if (visibleIds.length < 2) return
-
-        const focusedIdx = visibleIds.findIndex((id) => store.windows[id]?.isFocused)
-        const nextIdx = e.shiftKey
-          ? (focusedIdx - 1 + visibleIds.length) % visibleIds.length
-          : (focusedIdx + 1) % visibleIds.length
-        store.focusWindow(visibleIds[nextIdx])
-        return
-      }
+      // Cmd/Ctrl+Tab is handled by WindowSwitcher component
 
       // Cmd/Ctrl+`: cycle windows of same app
       if (mod && e.key === '`') {

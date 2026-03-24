@@ -15,6 +15,8 @@ import { Taskbar } from '@/components/Taskbar'
 import { ModeToggle } from '@/components/OSShell/ModeToggle'
 import { CommandPalette } from '@/components/CommandPalette'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
+import { SnapPreview } from '@/components/SnapPreview'
+import { WindowSwitcher } from '@/components/WindowSwitcher'
 import '@/styles.css'
 
 const STORAGE_KEY = 'deskui-mode'
@@ -153,8 +155,10 @@ export function OSShell({
         onWindowFocus={onWindowFocus}
       >
         <Desktop />
+        <SnapPreview />
         <WindowManager />
         {taskbarVariant === 'dock' ? <Dock /> : <Taskbar />}
+        <WindowSwitcher />
         <ModeToggle mode={mode} onToggle={toggleMode} themeTokens={theme.modeToggle} />
         <CommandPalette open={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
         {children}
