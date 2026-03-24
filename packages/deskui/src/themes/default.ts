@@ -38,7 +38,7 @@ export const defaultTheme: OSTheme = {
     tooltipColor: '#ffffff',
     badgeBg: '#ef4444',
     badgeColor: '#ffffff',
-    autoHide: false,
+    autoHide: true,
   },
 
   taskbar: {

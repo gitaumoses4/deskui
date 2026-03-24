@@ -13,7 +13,6 @@ export function Dock() {
   const { height, bg, blur, borderRadius, padding, gap, position, border, autoHide } = theme.dock
   const [visible, setVisible] = useState(!autoHide)
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const dockRef = useRef<HTMLDivElement>(null)
 
   const cancelHideTimer = useCallback(() => {
     if (hideTimerRef.current) {
@@ -37,7 +36,6 @@ export function Dock() {
     startHideTimer()
   }, [startHideTimer])
 
-  // Edge hover zone to reveal dock when auto-hidden
   useEffect(() => {
     if (!autoHide) return
 
@@ -57,7 +55,6 @@ export function Dock() {
     return () => window.removeEventListener('mousemove', handler)
   }, [autoHide, position, cancelHideTimer])
 
-  // Start hidden if auto-hide
   useEffect(() => {
     if (autoHide) {
       const timer = setTimeout(() => setVisible(false), AUTO_HIDE_DELAY)
@@ -69,36 +66,41 @@ export function Dock() {
   const isBottom = position === 'bottom'
 
   return (
-    <motion.div
-      ref={dockRef}
-      onMouseEnter={onDockEnter}
-      onMouseLeave={onDockLeave}
-      animate={{
-        y: visible ? 0 : isBottom ? hiddenOffset : -hiddenOffset,
-        opacity: visible ? 1 : 0,
-      }}
-      transition={{ type: 'tween', duration: 0.25, ease: [0.2, 0.8, 0.2, 1] }}
+    // Outer wrapper for centering — not animated, so transform isn't overridden
+    <div
       style={{
         position: 'absolute',
         [position]: 8,
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 200,
-        display: 'flex',
-        alignItems: 'center',
-        gap,
-        height,
-        padding,
-        background: bg,
-        backdropFilter: blur,
-        WebkitBackdropFilter: blur,
-        borderRadius,
-        border,
       }}
     >
-      {apps.map((app) => (
-        <DockItem key={app.id} app={app} />
-      ))}
-    </motion.div>
+      <motion.div
+        onMouseEnter={onDockEnter}
+        onMouseLeave={onDockLeave}
+        animate={{
+          y: visible ? 0 : isBottom ? hiddenOffset : -hiddenOffset,
+          opacity: visible ? 1 : 0,
+        }}
+        transition={{ type: 'tween', duration: 0.25, ease: [0.2, 0.8, 0.2, 1] }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap,
+          height,
+          padding,
+          background: bg,
+          backdropFilter: blur,
+          WebkitBackdropFilter: blur,
+          borderRadius,
+          border,
+        }}
+      >
+        {apps.map((app) => (
+          <DockItem key={app.id} app={app} />
+        ))}
+      </motion.div>
+    </div>
   )
 }
