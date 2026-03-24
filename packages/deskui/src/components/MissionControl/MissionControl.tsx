@@ -6,36 +6,9 @@ import { useOSStore } from '@/store/windowStore'
 import { useOSContext } from '@/context/OSContext'
 import { AppIcon } from '@/components/shared/AppIcon'
 
-const PADDING = 40
-const GAP = 20
-const TITLE_HEIGHT = 28
-
-function computeGrid(count: number, containerW: number, containerH: number) {
-  if (count === 0) return { cols: 0, rows: 0, cellW: 0, cellH: 0 }
-
-  // Find the grid that best fills the space
-  let bestCols = 1
-  let bestScore = 0
-
-  for (let cols = 1; cols <= count; cols++) {
-    const rows = Math.ceil(count / cols)
-    const cellW = (containerW - GAP * (cols - 1)) / cols
-    const cellH = (containerH - GAP * (rows - 1) - TITLE_HEIGHT * rows) / rows
-    const scale = Math.min(cellW, cellH)
-    const score = scale * Math.min(cols, count)
-
-    if (score > bestScore) {
-      bestScore = score
-      bestCols = cols
-    }
-  }
-
-  const rows = Math.ceil(count / bestCols)
-  const cellW = (containerW - GAP * (bestCols - 1)) / bestCols
-  const cellH = (containerH - GAP * (rows - 1) - TITLE_HEIGHT * rows) / rows
-
-  return { cols: bestCols, rows, cellW, cellH }
-}
+const THUMBNAIL_W = 240
+const THUMBNAIL_H = 160
+const GAP = 24
 
 export function MissionControl() {
   const active = useOSStore((s) => s.missionControlActive)
@@ -50,11 +23,6 @@ export function MissionControl() {
     () => zStack.filter((id) => windows[id]?.status !== 'minimized').map((id) => windows[id]),
     [zStack, windows],
   )
-
-  const containerW = typeof window !== 'undefined' ? window.innerWidth - PADDING * 2 : 800
-  const containerH = typeof window !== 'undefined' ? window.innerHeight - PADDING * 2 : 600
-
-  const grid = computeGrid(visibleWindows.length, containerW, containerH)
 
   return (
     <AnimatePresence>
@@ -75,56 +43,55 @@ export function MissionControl() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: PADDING,
+            padding: 60,
           }}
         >
           <div
             style={{
-              display: 'grid',
-              gridTemplateColumns: `repeat(${grid.cols}, ${grid.cellW}px)`,
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              alignItems: 'center',
               gap: GAP,
-              maxWidth: containerW,
-              maxHeight: containerH,
+              maxWidth: (THUMBNAIL_W + GAP) * 4,
             }}
           >
             {visibleWindows.map((win) => {
               const app = apps.find((a) => a.id === win.appId)
-              const aspect = win.size.w / win.size.h
-              const previewW = Math.min(grid.cellW, grid.cellH * aspect)
-              const previewH = previewW / aspect
 
               return (
                 <motion.div
                   key={win.id}
-                  initial={{ scale: 0.8, opacity: 0 }}
+                  initial={{ scale: 0.85, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.8, opacity: 0 }}
+                  exit={{ scale: 0.85, opacity: 0 }}
                   transition={{ duration: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
                   onClick={(e) => {
                     e.stopPropagation()
                     focusWindow(win.id)
                     toggleMissionControl()
                   }}
+                  whileHover={{ scale: 1.05 }}
                   style={{
                     cursor: 'pointer',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     gap: 8,
+                    width: THUMBNAIL_W,
                   }}
-                  whileHover={{ scale: 1.04 }}
                 >
-                  {/* Window preview */}
+                  {/* Thumbnail */}
                   <div
                     style={{
-                      width: previewW,
-                      height: previewH,
+                      width: THUMBNAIL_W,
+                      height: THUMBNAIL_H,
                       background: theme.windowChrome.glassBg,
-                      border: theme.windowChrome.border,
+                      border: win.isFocused
+                        ? `2px solid ${theme.tokens['accent-color'] ?? '#6366f1'}`
+                        : theme.windowChrome.border,
                       borderRadius: theme.windowChrome.borderRadius,
-                      boxShadow: win.isFocused
-                        ? theme.windowChrome.shadowFocused
-                        : theme.windowChrome.shadow,
+                      boxShadow: theme.windowChrome.shadow,
                       overflow: 'hidden',
                       display: 'flex',
                       flexDirection: 'column',
@@ -133,7 +100,7 @@ export function MissionControl() {
                     {/* Mini titlebar */}
                     <div
                       style={{
-                        height: Math.max(16, previewH * 0.08),
+                        height: 20,
                         background: theme.windowChrome.titlebarBg,
                         borderBottom: theme.windowChrome.border,
                         display: 'flex',
@@ -143,13 +110,13 @@ export function MissionControl() {
                       }}
                     >
                       {app && (
-                        <div style={{ width: 12, height: 12 }}>
-                          <AppIcon icon={app.icon} size={12} />
+                        <div style={{ width: 10, height: 10, flexShrink: 0 }}>
+                          <AppIcon icon={app.icon} size={10} />
                         </div>
                       )}
                       <span
                         style={{
-                          fontSize: 8,
+                          fontSize: 9,
                           color: theme.windowChrome.titlebarTextColor,
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -159,22 +126,21 @@ export function MissionControl() {
                         {win.title}
                       </span>
                     </div>
-                    {/* Content placeholder */}
-                    <div
-                      style={{
-                        flex: 1,
-                        background: theme.windowChrome.contentBg,
-                      }}
-                    />
+                    {/* Content area */}
+                    <div style={{ flex: 1, background: theme.windowChrome.contentBg }} />
                   </div>
 
                   {/* Label */}
                   <span
                     style={{
-                      fontSize: 12,
+                      fontSize: 11,
                       color: cp.itemColor,
                       fontWeight: 500,
                       textAlign: 'center',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      maxWidth: THUMBNAIL_W,
                     }}
                   >
                     {win.title}
