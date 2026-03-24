@@ -33,7 +33,8 @@
     "./src/*": "./src/*"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",
@@ -46,9 +47,13 @@
     "uuid": "^9.0.0"
   },
   "peerDependencies": {
-    "next": ">=13.0.0",
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
