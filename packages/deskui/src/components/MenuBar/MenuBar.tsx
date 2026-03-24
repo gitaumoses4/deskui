@@ -8,9 +8,10 @@ import type { ContextMenuItem } from '@/components/ContextMenu'
 
 interface MenuBarProps {
   onToggleCommandPalette: () => void
+  onToggleColorScheme?: () => void
 }
 
-export function MenuBar({ onToggleCommandPalette }: MenuBarProps) {
+export function MenuBar({ onToggleCommandPalette, onToggleColorScheme }: MenuBarProps) {
   const { theme, apps } = useOSContext()
   const windows = useOSStore((s) => s.windows)
   const closeWindow = useOSStore((s) => s.closeWindow)
@@ -228,8 +229,38 @@ export function MenuBar({ onToggleCommandPalette }: MenuBarProps) {
         {menuButton('View', 'view')}
         {menuButton('Window', 'window')}
 
-        {/* Right side: clock */}
-        <div style={{ marginLeft: 'auto', fontSize: 13, color: mb.textColor }}>{time}</div>
+        {/* Right side */}
+        <div
+          style={{
+            marginLeft: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            fontSize: 13,
+            color: mb.textColor,
+          }}
+        >
+          {onToggleColorScheme && (
+            <button
+              onClick={onToggleColorScheme}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'inherit',
+                fontSize: 14,
+                cursor: 'pointer',
+                padding: '0 4px',
+                borderRadius: 4,
+                lineHeight: 1,
+              }}
+              title="Toggle color scheme"
+              aria-label="Toggle color scheme"
+            >
+              {theme.colorScheme === 'dark' ? '☀️' : '🌙'}
+            </button>
+          )}
+          <span>{time}</span>
+        </div>
       </div>
 
       <ContextMenu

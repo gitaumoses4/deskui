@@ -7,7 +7,11 @@ import { useNotificationStore } from '@/store/notificationStore'
 import { TaskbarGroup } from './TaskbarGroup'
 import { TaskbarClock } from './TaskbarClock'
 
-export function Taskbar() {
+interface TaskbarProps {
+  onToggleColorScheme?: () => void
+}
+
+export function Taskbar({ onToggleColorScheme }: TaskbarProps) {
   const { theme, apps } = useOSContext()
   const windows = useOSStore((s) => s.windows)
   const showDesktop = useOSStore((s) => s.showDesktop)
@@ -93,6 +97,25 @@ export function Taskbar() {
           flexShrink: 0,
         }}
       >
+        {/* Color scheme toggle */}
+        {onToggleColorScheme && (
+          <button
+            onClick={onToggleColorScheme}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'inherit',
+              fontSize: 14,
+              cursor: 'pointer',
+              padding: '4px 6px',
+              borderRadius: 4,
+            }}
+            aria-label="Toggle color scheme"
+          >
+            {theme.colorScheme === 'dark' ? '☀️' : '🌙'}
+          </button>
+        )}
+
         {/* Notification bell */}
         <button
           onClick={togglePanel}

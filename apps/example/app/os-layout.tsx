@@ -120,10 +120,16 @@ const apps: AppDefinition[] = [
 ]
 
 export function OSLayout({ children }: { children: React.ReactNode }) {
-  const { theme } = useColorScheme({ defaultScheme: 'system' })
+  const { theme, toggle } = useColorScheme({ defaultScheme: 'system' })
 
   return (
-    <OSShell apps={apps} theme={theme} taskbarVariant="dock" initialWindows={['dashboard']}>
+    <OSShell
+      apps={apps}
+      theme={theme}
+      taskbarVariant="dock"
+      initialWindows={['dashboard']}
+      onToggleColorScheme={toggle}
+    >
       {children}
     </OSShell>
   )

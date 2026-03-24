@@ -44,6 +44,7 @@ export interface OSShellProps {
   onWindowClose?: (windowId: string) => void
   onWindowFocus?: (windowId: string) => void
   onModeChange?: (mode: 'desktop' | 'web') => void
+  onToggleColorScheme?: () => void
   children: React.ReactNode
 }
 
@@ -82,6 +83,7 @@ export function OSShell({
   onWindowClose,
   onWindowFocus,
   onModeChange,
+  onToggleColorScheme,
   children,
 }: OSShellProps) {
   const [isIframe, setIsIframe] = useState<boolean | null>(null)
@@ -197,9 +199,16 @@ export function OSShell({
         <SnapPreview />
         <WindowManager />
         {taskbarVariant === 'dock' && (
-          <MenuBar onToggleCommandPalette={() => setCommandPaletteOpen((v) => !v)} />
+          <MenuBar
+            onToggleCommandPalette={() => setCommandPaletteOpen((v) => !v)}
+            onToggleColorScheme={onToggleColorScheme}
+          />
         )}
-        {taskbarVariant === 'dock' ? <Dock dockItems={dockItems} /> : <Taskbar />}
+        {taskbarVariant === 'dock' ? (
+          <Dock dockItems={dockItems} />
+        ) : (
+          <Taskbar onToggleColorScheme={onToggleColorScheme} />
+        )}
         <WindowSwitcher />
         <ModeToggle mode={mode} onToggle={toggleMode} themeTokens={theme.modeToggle} />
         <CommandPalette open={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
