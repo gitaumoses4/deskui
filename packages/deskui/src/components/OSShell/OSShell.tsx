@@ -20,6 +20,7 @@ import { WindowSwitcher } from '@/components/WindowSwitcher'
 import { useBridgeListener } from '@/hooks/useBridgeListener'
 import { usePersistedLayout } from '@/hooks/usePersistedLayout'
 import { ToastContainer, NotificationPanel } from '@/components/Notification'
+import { MissionControl } from '@/components/MissionControl'
 import '@/styles.css'
 
 const STORAGE_KEY = 'deskui-mode'
@@ -95,8 +96,9 @@ export function OSShell({
   const toggleCommandPalette = useCallback(() => setCommandPaletteOpen((v) => !v), [])
 
   const showDesktop = useOSStore((s) => s.showDesktop)
+  const toggleMissionControl = useOSStore((s) => s.toggleMissionControl)
 
-  // Keyboard shortcuts: Ctrl/Cmd+Shift+D (mode toggle), Ctrl/Cmd+D (show desktop)
+  // Keyboard shortcuts: Ctrl/Cmd+Shift+D, Ctrl/Cmd+D, F3 (Mission Control)
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'D') {
@@ -107,10 +109,14 @@ export function OSShell({
         e.preventDefault()
         showDesktop()
       }
+      if (e.key === 'F3') {
+        e.preventDefault()
+        toggleMissionControl()
+      }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [toggleMode, showDesktop])
+  }, [toggleMode, showDesktop, toggleMissionControl])
 
   const theme = useMemo(() => resolveTheme(themeProp), [themeProp])
   const cssVars = useMemo(() => themeToVars(theme), [theme])
@@ -153,6 +159,8 @@ export function OSShell({
   // Desktop mode
   return (
     <div
+      role="application"
+      aria-label="Desktop"
       style={{
         position: 'fixed',
         inset: 0,
@@ -178,6 +186,7 @@ export function OSShell({
         <WindowSwitcher />
         <ModeToggle mode={mode} onToggle={toggleMode} themeTokens={theme.modeToggle} />
         <CommandPalette open={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
+        <MissionControl />
         <ToastContainer />
         <NotificationPanel />
         {children}

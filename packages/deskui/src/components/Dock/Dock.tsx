@@ -64,6 +64,8 @@ export function Dock() {
       }}
     >
       <motion.div
+        role="toolbar"
+        aria-label="Dock"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         animate={{

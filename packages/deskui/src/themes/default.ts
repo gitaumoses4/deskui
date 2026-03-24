@@ -58,6 +58,7 @@ export const defaultTheme: OSTheme = {
     gridGap: 14,
     gridPadding: '24px',
     defaultWallpaper: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+    borderRadius: 4,
   },
 
   commandPalette: {

@@ -35,6 +35,8 @@ export interface OSStore {
   showDesktopSnapshot: string[] | null
   draggingWindowId: string | null
   snapPreview: SnapZone
+  missionControlActive: boolean
+  toggleMissionControl: () => void
   setDragging: (windowId: string | null) => void
   setSnapPreview: (zone: SnapZone) => void
   setBadge: (appId: string, count: number) => void
@@ -94,6 +96,9 @@ export const useOSStore = create<OSStore>((set, get) => ({
   showDesktopSnapshot: null,
   draggingWindowId: null,
   snapPreview: null,
+  missionControlActive: false,
+  toggleMissionControl: () =>
+    set((state) => ({ missionControlActive: !state.missionControlActive })),
   setDragging: (windowId) => set({ draggingWindowId: windowId }),
   setSnapPreview: (zone) => set({ snapPreview: zone }),
   setBadge: (appId, count) => set((state) => ({ badges: { ...state.badges, [appId]: count } })),

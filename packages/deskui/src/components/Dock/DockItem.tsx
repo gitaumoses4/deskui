@@ -70,6 +70,8 @@ export function DockItem({ app }: DockItemProps) {
       <motion.button
         onClick={onClick}
         animate={bounceControls}
+        aria-label={app.label}
+        aria-pressed={hasWindow}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{

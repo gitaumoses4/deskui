@@ -31,6 +31,9 @@ export function Window({ windowId }: WindowProps) {
 
   return (
     <motion.div
+      role="dialog"
+      aria-label={win.title}
+      aria-modal={false}
       data-window-id={windowId}
       variants={{
         ...theme.animation.windowOpen,
