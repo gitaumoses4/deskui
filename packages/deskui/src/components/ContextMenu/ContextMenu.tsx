@@ -32,6 +32,7 @@ function clampToViewport(x: number, y: number, el: HTMLElement | null) {
 
 export function ContextMenu({ items, position, onClose, theme: cm }: ContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null)
+  const cleanupRef = useRef<(() => void) | null>(null)
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const [clamped, setClamped] = useState<{ x: number; y: number } | null>(null)
 
@@ -49,16 +50,33 @@ export function ContextMenu({ items, position, onClose, theme: cm }: ContextMenu
     setSelectedIndex(-1)
   }, [position])
 
-  // Close on click outside
+  // Close on click outside, right-click outside, or scroll
   useEffect(() => {
     if (!position) return
-    const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        onClose()
+
+    // Small delay to avoid closing from the same event that opened the menu
+    const timer = setTimeout(() => {
+      const handleClose = (e: Event) => {
+        if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+          onClose()
+        }
       }
+      window.addEventListener('mousedown', handleClose, true)
+      window.addEventListener('contextmenu', handleClose, true)
+      window.addEventListener('scroll', onClose, true)
+
+      cleanupRef.current = () => {
+        window.removeEventListener('mousedown', handleClose, true)
+        window.removeEventListener('contextmenu', handleClose, true)
+        window.removeEventListener('scroll', onClose, true)
+      }
+    }, 0)
+
+    return () => {
+      clearTimeout(timer)
+      cleanupRef.current?.()
+      cleanupRef.current = null
     }
-    window.addEventListener('mousedown', handler)
-    return () => window.removeEventListener('mousedown', handler)
   }, [position, onClose])
 
   // Keyboard navigation
