@@ -4,13 +4,13 @@ export const defaultTheme: OSTheme = {
   name: 'deskui',
 
   windowChrome: {
-    borderRadius: '12px',
-    titlebarHeight: 42,
+    borderRadius: '0px',
+    titlebarHeight: 36,
     titlebarBg: 'rgba(255, 255, 255, 0.82)',
     titlebarBgUnfocused: 'rgba(255, 255, 255, 0.65)',
     titlebarTextColor: '#1c1c1e',
-    controlStyle: 'traffic-lights',
-    controlsPosition: 'left',
+    controlStyle: 'squares',
+    controlsPosition: 'right',
     shadow: '0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)',
     shadowFocused: '0 8px 40px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.08)',
     border: '1px solid rgba(0, 0, 0, 0.06)',
@@ -28,7 +28,7 @@ export const defaultTheme: OSTheme = {
     gap: 6,
     bg: 'rgba(255, 255, 255, 0.18)',
     blur: 'blur(24px)',
-    borderRadius: '18px',
+    borderRadius: '4px',
     padding: '6px 10px',
     border: '1px solid rgba(255, 255, 255, 0.15)',
     magnification: false,
@@ -73,7 +73,7 @@ export const defaultTheme: OSTheme = {
     separatorColor: 'rgba(255, 255, 255, 0.08)',
     hintColor: 'rgba(255, 255, 255, 0.3)',
     overlayBg: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: '14px',
+    borderRadius: '4px',
   },
 
   contextMenu: {
@@ -81,7 +81,7 @@ export const defaultTheme: OSTheme = {
     blur: 'blur(20px)',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     shadow: '0 8px 30px rgba(0, 0, 0, 0.35)',
-    borderRadius: '10px',
+    borderRadius: '4px',
     itemColor: '#ffffff',
     itemHoverBg: 'rgba(255, 255, 255, 0.1)',
     itemHoverColor: '#ffffff',
@@ -92,13 +92,27 @@ export const defaultTheme: OSTheme = {
     dangerHoverBg: 'rgba(255, 95, 87, 0.15)',
   },
 
+  notification: {
+    bg: 'rgba(30, 30, 30, 0.92)',
+    blur: 'blur(20px)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    shadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
+    borderRadius: '4px',
+    titleColor: '#ffffff',
+    bodyColor: 'rgba(255, 255, 255, 0.7)',
+    timeColor: 'rgba(255, 255, 255, 0.3)',
+    actionColor: '#6366f1',
+    panelBg: 'rgba(20, 20, 20, 0.95)',
+    panelWidth: 360,
+  },
+
   modeToggle: {
     bg: 'rgba(0, 0, 0, 0.7)',
     blur: 'blur(12px)',
     border: '1px solid rgba(255, 255, 255, 0.15)',
     color: '#ffffff',
     hoverPadding: '8px 14px',
-    borderRadius: '20px',
+    borderRadius: '4px',
   },
 
   animation: {
